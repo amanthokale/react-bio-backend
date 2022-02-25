@@ -5,11 +5,11 @@ require('./db/con');
 const User = require('./db/userSchema');
 const bcrypt =require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const auth = require('./middleware/auth')
+//const auth = require('./middleware/auth')
 const JWT_SECRET = process.env.JWT_SECRET;
 
 
-const port = 3000
+const port = 5000
 app.use(express.json())
 
 
@@ -23,15 +23,16 @@ app.post('/login',async(req,res)=>{
   const token = await pass.generateAuth();
   console.log(token)
   res.cookie('jwt',token,{
-    httpOnly:true
+    httpOnly:true,
+    secure:true
   })
-  res.send("Login Sucessfull")
+  res.send("Login Successfull")
   }
   else{
-    res.json({error:"Invalid Credentals"})
+    res.status(400).send("Invalid Credentals")
   }
   } catch (e) {
-    res.send("login failed")
+    res.status(400).send("login failed")
     console.log(e)
   }
 })
@@ -42,23 +43,24 @@ try {
   const {firstName,lastName,age,gender,email,mobile,password,confirmPassword,course}= req.body;
   if(confirmPassword === password){
   if(await User.findOne({email:email})){
-    res.send("User Already Exists");
+    res.status(400).send("User Already Exists");
+    return;
   }
   else{
-  const hash = await bcrypt.hash(password,10)
+  const hash = await bcrypt.hash(password,10);
   const a = await new User({firstName,lastName,age,gender,email,mobile,password:hash,course});
   const x = await a.save();
   console.log(x)
   // console.log(a)
   if(a){
-  res.send("Data Inserted Successfully")
+  res.status(200).send(a);
 }}}
 else{
-  res.send("Passwords not matching")
+  res.status(400).send("Passwords not matching")
 }
 } catch (e) {
   console.log(`Failed to create user Error:/n${e}`)
-  res.send("Failed to create user")
+  res.status(404).send("Failed to create user")
 }
 })
 
