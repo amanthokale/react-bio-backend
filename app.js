@@ -1,3 +1,4 @@
+const JWT_SECRET = process.env.JWT_SECRET;
 require('dotenv').config();
 const express = require('express');
 const app = express();
@@ -5,12 +6,12 @@ require('./db/con');
 const User = require('./db/userSchema');
 const bcrypt =require('bcryptjs');
 const jwt = require('jsonwebtoken');
-//const auth = require('./middleware/auth')
-const JWT_SECRET = process.env.JWT_SECRET;
-
+const auth = require('./middleware/auth');
+const cookieParser = require('cookie-parser');
 
 const port = 5000
 app.use(express.json())
+app.use(cookieParser());
 
 
 app.post('/login',async(req,res)=>{
@@ -64,6 +65,9 @@ else{
 }
 })
 
+app.get('/Bio',auth,(req,res)=>{
+  res.status(200).send(req.user)
+})
 
 
 app.listen(port,()=>{
