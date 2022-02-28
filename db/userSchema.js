@@ -31,7 +31,25 @@ const userSchema = mongoose.Schema({
         type:String,
         required:true
       }
-  }]
+  }],
+  message:[{
+    firstName:{
+      type:String
+    },
+    lastName:{
+      type:String
+    },
+    email:{
+      type:String
+    },
+    message:{
+      type:String
+    }
+  }],
+  date:{
+    type:Date,
+    default:Date.now()
+  }
 
 })
 
@@ -46,6 +64,30 @@ userSchema.methods.generateAuth=async function(){
       console.log(e)
     }
 }
+
+userSchema.methods.addMessage=async function(firstName,lastName,email,message){
+  try {
+
+    this.message = this.message.concat({firstName,lastName,email,message})
+
+    this.save();
+    return this.message;
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+
+userSchema.methods.clearToken=async function(){
+  try {
+      this.tokens = [];
+      this.save();
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+
 
 const User = mongoose.model("User",userSchema)
 

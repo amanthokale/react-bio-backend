@@ -69,6 +69,47 @@ app.get('/Bio',auth,(req,res)=>{
   res.status(200).send(req.user)
 })
 
+app.get('/Contact',auth,(req,res)=>{
+  res.status(200).send(req.user)
+})
+
+
+
+app.post('/Contact',auth,async(req,res)=>{
+try {
+  const {firstName,lastName,email,message}=req.body;
+
+  if(!firstName || !lastName || !email || !message){
+    res.status(401).send("Fields Are missing");
+  }
+  else{
+    const user = await User.findOne({_id:req.user._id})
+    if(user){
+    const a = await user.addMessage(firstName,lastName,email,message);
+    res.status(200).send(a);
+  }
+  }
+} catch (e) {
+  res.status(401).send("Unable to send request")
+}
+})
+
+
+app.get('/logout',auth,async(req,res)=>{
+  try {
+    res.clearCookie('jwt');
+    const user =await User.findOne({_id:req.user._id});
+    if(user){
+      const a = await user.clearToken();
+      res.status(200).send("Cookie Cleared")
+    }else{
+      throw new Error("HUI")
+    }
+  } catch (e) {
+    res.status(401).send("Cookie not cleared")
+  }
+
+})
 
 app.listen(port,()=>{
   console.log(`Connected to port ${port}`)
